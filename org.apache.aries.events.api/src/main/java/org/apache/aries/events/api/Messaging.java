@@ -22,7 +22,7 @@ public interface Messaging {
      * @param callback will be called for each message received
      * @return Returned subscription must be closed by the caller to unsubscribe
      */
-    Subscription subscribe(String topic, TopicPosition position, Seek seek, Consumer<Message> callback);
+    Subscription subscribe(String topic, Position position, Seek seek, Consumer<Message> callback);
 
     /**
      * Create a message with payload and metadata
