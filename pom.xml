@@ -46,6 +46,7 @@
 
     <modules>
         <module>org.apache.aries.events.api</module>
+        <module>org.apache.aries.events.memory</module>
     </modules>
 
     <properties>
