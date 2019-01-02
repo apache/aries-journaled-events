@@ -33,6 +33,6 @@ class MemoryPosition implements Position {
 
     @Override
     public String toString() {
-        return new Long(offset).toString();
+        return Long.toString(offset);
     }
 }
