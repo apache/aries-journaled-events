@@ -17,13 +17,20 @@
  */
 package org.apache.aries.events.api;
 
-import java.util.Map;
-
-/**
- * TODO If we allow wild card consumption then a message also needs a topic
- */
-public interface Message {
-    byte[] getPayload();
+public final class Received {
+    private Position position;
+    private Message message;
     
-    Map<String, String> getProperties();
+    public Received(Position position, Message message) {
+        this.position = position;
+        this.message = message;
+    }
+    
+    public Position getPosition() {
+        return position;
+    }
+    
+    public Message getMessage() {
+        return message;
+    }
 }

@@ -15,15 +15,24 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.apache.aries.events.api;
+package org.apache.aries.events.memory;
 
-import java.util.Map;
+import org.apache.aries.events.api.Position;
 
-/**
- * TODO If we allow wild card consumption then a message also needs a topic
- */
-public interface Message {
-    byte[] getPayload();
-    
-    Map<String, String> getProperties();
+class MemoryPosition implements Position {
+
+    private long offset;
+
+    MemoryPosition(long offset) {
+        this.offset = offset;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    @Override
+    public String toString() {
+        return new Long(offset).toString();
+    }
 }

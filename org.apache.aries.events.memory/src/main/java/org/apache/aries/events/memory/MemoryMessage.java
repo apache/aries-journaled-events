@@ -15,15 +15,30 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.apache.aries.events.api;
+package org.apache.aries.events.memory;
 
 import java.util.Map;
 
-/**
- * TODO If we allow wild card consumption then a message also needs a topic
- */
-public interface Message {
-    byte[] getPayload();
-    
-    Map<String, String> getProperties();
+import org.apache.aries.events.api.Message;
+
+class MemoryMessage implements Message {
+
+    private byte[] payload;
+    private Map<String, String> properties;
+
+    MemoryMessage(byte[] payload, Map<String, String> props) {
+        this.payload = payload;
+        properties = props;
+    }
+
+    @Override
+    public byte[] getPayload() {
+        return this.payload;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return this.properties;
+    }
+
 }
