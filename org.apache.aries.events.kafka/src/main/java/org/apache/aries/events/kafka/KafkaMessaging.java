@@ -28,12 +28,15 @@ import java.util.stream.Collectors;
 import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
 import org.apache.aries.events.api.Position;
+import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
 import org.apache.aries.events.api.Subscription;
+import org.apache.aries.events.api.Type;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -65,6 +68,7 @@ import static org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG;
 
+@Type("kafka")
 @Component(service = Messaging.class, configurationPolicy = ConfigurationPolicy.REQUIRE)
 @Designate(ocd = KafkaEndpoint.class)
 public class KafkaMessaging implements Messaging {
@@ -103,17 +107,18 @@ public class KafkaMessaging implements Messaging {
     }
 
     @Override
-    public void send(String topic, Message message) {
+    public Position send(String topic, Message message) {
         ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(topic, PARTITION, null, message.getPayload(), toHeaders(message.getProperties()));
         try {
-            kafkaProducer().send(record).get();
+            RecordMetadata metadata = kafkaProducer().send(record).get();
+            return new KafkaPosition(metadata.partition(), metadata.offset());
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(format("Failed to send mesage on topic %s", topic), e);
         }
     }
 
     @Override
-    public Subscription subscribe(String topic, Position position, Seek seek, Consumer<Message> callback) {
+    public Subscription subscribe(String topic, Position position, Seek seek, Consumer<Received> callback) {
         KafkaConsumer<String, byte[]> consumer = buildKafkaConsumer(seek);
         assignAndSeek(consumer, topic, position);
         Subscription subscription = new KafkaSubscription(consumer, callback);
@@ -138,11 +143,13 @@ public class KafkaMessaging implements Messaging {
         return new KafkaPosition(parseInt(chunks[0]), parseLong(chunks[1]));
     }
 
+    /*
     @Override
     public String positionToString(Position position) {
         KafkaPosition kafkaPosition = asKafkaPosition(position);
         return format("%s:%s", kafkaPosition.getPartition(), kafkaPosition.getOffset());
     }
+    */
 
     static Iterable<Header> toHeaders(Map<String, String> properties) {
         return properties.entrySet().stream()
@@ -160,8 +167,7 @@ public class KafkaMessaging implements Messaging {
     }
 
     static Message toMessage(ConsumerRecord<String, byte[]> record) {
-        Position position = new KafkaPosition(record.partition(), record.offset());
-        return new KafkaMessage(record.value(), toProperties(record.headers()), position);
+        return new KafkaMessage(record.value(), toProperties(record.headers()));
     }
 
 

@@ -19,7 +19,6 @@ package org.apache.aries.events.kafka;
 import java.util.Map;
 
 import org.apache.aries.events.api.Message;
-import org.apache.aries.events.api.Position;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
@@ -30,26 +29,14 @@ public class KafkaMessage implements Message {
 
     private final Map<String, String> props;
 
-    private final Position position;
-
     public KafkaMessage(byte[] payload, Map<String, String> props) {
-        this(payload, props, null);
-    }
-
-    public KafkaMessage(byte[] payload, Map<String, String> props, Position position) {
         this.payload = requireNonNull(payload).clone();
         this.props = unmodifiableMap(requireNonNull(props));
-        this.position = position;
     }
 
     @Override
     public byte[] getPayload() {
         return payload;
-    }
-
-    @Override
-    public Position getPosition() {
-        return position;
     }
 
     @Override

@@ -16,32 +16,12 @@
  */
 package org.apache.aries.events.kafka;
 
-import java.util.Random;
-
 import org.apache.aries.events.api.Messaging;
-import org.apache.aries.events.api.Position;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 
 public class KafkaMessagingTest {
-
-    private static final Random RAND = new Random();
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPositionToStringIllegalArgument() throws Exception {
-        Position position = Mockito.mock(Position.class);
-        Messaging messaging = new KafkaMessaging();
-        messaging.positionToString(position);
-    }
-
-    @Test
-    public void testPositionToString() throws Exception {
-        Position position = new KafkaPosition(0, 100);
-        Messaging messaging = new KafkaMessaging();
-        assertEquals("0:100", messaging.positionToString(position));
-    }
 
     @Test
     public void testPositionFromString() throws Exception {
@@ -56,15 +36,5 @@ public class KafkaMessagingTest {
         Messaging messaging = new KafkaMessaging();
         messaging.positionFromString("0:100:23");
     }
-
-    @Test
-    public void testPositionSerDeser() throws Exception {
-        KafkaPosition refKafkaPosition = new KafkaPosition(RAND.nextInt(), RAND.nextLong());
-        Messaging messaging = new KafkaMessaging();
-        KafkaPosition resKafkaPosition = (KafkaPosition) messaging.positionFromString(messaging.positionToString(refKafkaPosition));
-        assertEquals(resKafkaPosition.getOffset(), refKafkaPosition.getOffset());
-        assertEquals(resKafkaPosition.getPartition(), refKafkaPosition.getPartition());
-    }
-
 
 }

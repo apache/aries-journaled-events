@@ -18,8 +18,10 @@ package org.apache.aries.events.kafka;
 
 import java.util.function.Consumer;
 
-import org.apache.aries.events.api.Message;
+import org.apache.aries.events.api.Position;
+import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Subscription;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
@@ -39,9 +41,9 @@ public class KafkaSubscription implements Subscription, Runnable {
 
     private final KafkaConsumer<String, byte[]> consumer;
 
-    private final Consumer<Message> callback;
+    private final Consumer<Received> callback;
 
-    public KafkaSubscription(KafkaConsumer<String, byte[]> consumer, Consumer<Message> callback) {
+    public KafkaSubscription(KafkaConsumer<String, byte[]> consumer, Consumer<Received> callback) {
         this.consumer = requireNonNull(consumer);
         this.callback = requireNonNull(callback);
     }
@@ -51,7 +53,7 @@ public class KafkaSubscription implements Subscription, Runnable {
         try {
             for (;running;) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(MAX_VALUE));
-                records.forEach(record -> callback.accept(toMessage(record)));
+                records.forEach(record -> callback.accept(toReceived(record)));
             }
         } catch (WakeupException e) {
             if (running) {
@@ -73,6 +75,11 @@ public class KafkaSubscription implements Subscription, Runnable {
     public void close() {
         running = false;
         consumer.wakeup();
+    }
+
+    private Received toReceived(ConsumerRecord<String, byte[]> record) {
+        Position position = new KafkaPosition(record.partition(), record.offset());
+        return new Received(position, toMessage(record));
     }
 
 }
