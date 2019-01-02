@@ -21,3 +21,5 @@ This subproject provides an API (possibly as spec) and backends for journaled st
 * Each consumer must receive messages in the same order they were sent
 * The journal of each topic may evict messages that are older than a certain retention time
 
+## Modules
+
