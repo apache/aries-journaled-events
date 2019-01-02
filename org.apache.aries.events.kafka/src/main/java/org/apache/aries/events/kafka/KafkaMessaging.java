@@ -143,13 +143,10 @@ public class KafkaMessaging implements Messaging {
         return new KafkaPosition(parseInt(chunks[0]), parseLong(chunks[1]));
     }
 
-    /*
-    @Override
-    public String positionToString(Position position) {
+    static String positionToString(Position position) {
         KafkaPosition kafkaPosition = asKafkaPosition(position);
         return format("%s:%s", kafkaPosition.getPartition(), kafkaPosition.getOffset());
     }
-    */
 
     static Iterable<Header> toHeaders(Map<String, String> properties) {
         return properties.entrySet().stream()
@@ -210,7 +207,7 @@ public class KafkaMessaging implements Messaging {
         }
     }
 
-    private KafkaPosition asKafkaPosition(Position position) {
+    private static KafkaPosition asKafkaPosition(Position position) {
         if (! KafkaPosition.class.isInstance(position)) {
             throw new IllegalArgumentException(format("Position %s must be and instance of %s", position, KafkaPosition.class.getCanonicalName()));
         }
