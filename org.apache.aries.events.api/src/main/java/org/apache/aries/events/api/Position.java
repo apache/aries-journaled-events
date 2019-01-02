@@ -7,5 +7,5 @@ package org.apache.aries.events.api;
  * TODO How do we provide ordering without being too specific?
  */
 public interface Position {
-    
+    long getOffset();
 }

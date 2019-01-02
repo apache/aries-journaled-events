@@ -11,7 +11,7 @@ public interface Messaging {
      * Send a message to a topic. When this method returns the message 
      * is safely persisted.
      */
-    void send(String topic, Message message);
+    Position send(String topic, Message message);
 
     /**
      * Subscribe to a topic. The callback is called for each message received.
@@ -22,7 +22,7 @@ public interface Messaging {
      * @param callback will be called for each message received
      * @return Returned subscription must be closed by the caller to unsubscribe
      */
-    Subscription subscribe(String topic, Position position, Seek seek, Consumer<Message> callback);
+    Subscription subscribe(String topic, Position position, Seek seek, Consumer<Received> callback);
 
     /**
      * Create a message with payload and metadata
@@ -40,11 +40,4 @@ public interface Messaging {
      */
     Position positionFromString(String position);
 
-    /**
-     * Serialize position for storage
-     * 
-     * @param position
-     * @return
-     */
-    String positionToString(Position position);
 }

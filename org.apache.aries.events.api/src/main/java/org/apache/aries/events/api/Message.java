@@ -8,10 +8,5 @@ import java.util.Map;
 public interface Message {
     byte[] getPayload();
     
-    /**
-     * Position of the message in the topic
-     * @return
-     */
-    Position getPosition();
     Map<String, String> getProperties();
 }
