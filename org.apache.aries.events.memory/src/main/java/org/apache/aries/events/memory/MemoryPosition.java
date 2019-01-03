@@ -27,7 +27,7 @@ class MemoryPosition implements Position {
         this.offset = offset;
     }
 
-    public long getOffset() {
+    long getOffset() {
         return offset;
     }
 
@@ -37,7 +37,7 @@ class MemoryPosition implements Position {
     }
 
     @Override
-    public String toString() {
-        return positionToString();
+    public int compareTo(Position p) {
+        return Long.compare(((MemoryPosition)p).offset, offset);
     }
 }

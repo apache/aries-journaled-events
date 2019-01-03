@@ -3,6 +3,7 @@ package org.apache.aries.events.memory;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -55,7 +56,7 @@ public class MessagingTest {
     @Test
     public void testPositionFromString() {
         Position pos = messaging.positionFromString("1");
-        assertThat(pos.getOffset(), equalTo(1l));
+        assertEquals(0, pos.compareTo(new MemoryPosition(1)));
     }
     
     @Test
@@ -66,7 +67,7 @@ public class MessagingTest {
         verify(callback, timeout(1000)).accept(messageCaptor.capture());
         Received received = messageCaptor.getValue();
         assertThat(received.getMessage().getPayload(), equalTo(toBytes(content)));
-        assertThat(received.getPosition().getOffset(), equalTo(0l));
+        assertEquals(0, received.getPosition().compareTo(new MemoryPosition(0)));
         assertThat(received.getMessage().getProperties().size(), equalTo(1));
         assertThat(received.getMessage().getProperties().get("my"), equalTo("testvalue"));
     }
