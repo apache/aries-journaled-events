@@ -36,9 +36,9 @@ public class InMemoryMessaging implements Messaging {
     private Map<String, Topic> topics = new ConcurrentHashMap<>();
 
     @Override
-    public Position send(String topicName, Message message) {
+    public void send(String topicName, Message message) {
         Topic topic = getOrCreate(topicName);
-        return topic.send(message);
+        topic.send(message);
     }
 
     @Override
