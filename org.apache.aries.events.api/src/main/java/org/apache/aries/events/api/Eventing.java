@@ -21,14 +21,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Journaled messaging API
+ * Journaled eventing API
  */
-public interface Messaging {
+public interface Eventing {
     /**
      * Send a message to a topic. When this method returns the message 
      * is safely persisted.
      */
-    Position send(String topic, Message message);
+    Position send(String topic, Event event);
 
     /**
      * Subscribe to a topic. The callback is called for each message received.
@@ -47,7 +47,7 @@ public interface Messaging {
      * @param props
      * @return
      */
-    Message newMessage(byte[] payload, Map<String, String> props);
+    Event newEvent(byte[] payload, Map<String, String> props);
 
     /**
      * Deserialize the position from the string
