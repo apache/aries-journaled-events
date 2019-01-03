@@ -49,6 +49,6 @@ public final class KafkaPosition implements Position {
 
     @Override
     public int compareTo(Position p) {
-        return Long.compare(((KafkaPosition)p).offset, offset);
+        return Long.compare(offset, ((KafkaPosition)p).offset);
     }
 }
