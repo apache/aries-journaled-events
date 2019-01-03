@@ -48,12 +48,12 @@ public class Topic {
     }
 
     public Subscription subscribe(Position position, Seek seek, Consumer<Received> callback) {
-        long startOffset = getStartOffset(position, seek);
+        long startOffset = getStartOffset((MemoryPosition) position, seek);
         log.debug("Consuming from " + startOffset);
         return new TopicSubscription(startOffset, callback);
     }
 
-    private long getStartOffset(Position position, Seek seek) {
+    private long getStartOffset(MemoryPosition position, Seek seek) {
         if (position != null) {
             return position.getOffset();
         } else {
