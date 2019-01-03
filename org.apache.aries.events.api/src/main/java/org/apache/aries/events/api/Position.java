@@ -24,4 +24,6 @@ package org.apache.aries.events.api;
  */
 public interface Position extends Comparable<Position> {
 
+    String positionToString();
+
 }
