@@ -2,8 +2,9 @@ package org.apache.aries.events.memory;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 public class MessagingTest {
     
@@ -56,7 +58,8 @@ public class MessagingTest {
     @Test
     public void testPositionFromString() {
         Position pos = messaging.positionFromString("1");
-        assertEquals(0, pos.compareTo(new MemoryPosition(1)));
+        assertThat(pos.compareTo(new MemoryPosition(1)), equalTo(0));
+        assertThat(pos.positionToString(), equalTo("1"));
     }
     
     @Test
@@ -73,8 +76,16 @@ public class MessagingTest {
     }
     
     @Test(expected=IllegalArgumentException.class)
-    public void testInvalid() {
+    public void testInvalidSubscribe() {
         messaging.subscribe("test", null, null, callback);
+    }
+    
+    @Test
+    public void testExceptionInHandler() {
+        doThrow(new RuntimeException("Expected exception")).when(callback).accept(Mockito.any(Received.class));
+        subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
+        send("test", "testcontent");
+        verify(callback, timeout(1000)).accept(messageCaptor.capture());
     }
 
     @Test
