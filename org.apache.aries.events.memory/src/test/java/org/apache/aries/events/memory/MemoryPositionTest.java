@@ -15,21 +15,27 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.apache.aries.events.api;
+package org.apache.aries.events.memory;
 
-/**
- * Position in a the topic.
- * E.g. For a kafka implementation this would be a list of (partition, offset) as we do not support partitions 
- * this could simply be like an offset.
- *
- * The {@code Position} positions are ordered. The relative order between
- * two positions can be computed by invoking {@code Comparable#compareTo}.
- * Comparing this position with a specified position will return a negative
- * integer, zero, or a positive integer as this position happened before,
- * happened concurrently, or happened after the specified position.
- */
-public interface Position extends Comparable<Position> {
+import org.junit.Test;
 
-    String positionToString();
+import static org.junit.Assert.assertEquals;
+
+public class MemoryPositionTest {
+
+    @Test
+    public void testCompareTo() throws Exception {
+        assertEquals(0, comparePositions(position(5),  position(5)));
+        assertEquals(1, comparePositions(position(10), position(5)));
+        assertEquals(-1, comparePositions(position(2), position(5)));
+    }
+
+    private int comparePositions(MemoryPosition position1, MemoryPosition position2) {
+        return position1.compareTo(position2);
+    }
+
+    private MemoryPosition position(long offset) {
+        return new MemoryPosition(offset);
+    }
 
 }
