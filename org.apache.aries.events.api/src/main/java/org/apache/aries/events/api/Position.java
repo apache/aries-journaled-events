@@ -25,4 +25,13 @@ package org.apache.aries.events.api;
  */
 public interface Position {
     long getOffset();
+
+
+    /**
+     * Serialise the position into a {@code String} string.
+     *
+     * @see {@link Messaging#positionFromString(String)} for the reverse operation.
+     * @return the position as a string
+     */
+    String positionToString();
 }
