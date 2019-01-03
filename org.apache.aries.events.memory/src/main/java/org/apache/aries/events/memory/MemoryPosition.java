@@ -38,6 +38,6 @@ class MemoryPosition implements Position {
 
     @Override
     public int compareTo(Position p) {
-        return Long.compare(((MemoryPosition)p).offset, offset);
+        return Long.compare(offset, ((MemoryPosition)p).offset);
     }
 }
