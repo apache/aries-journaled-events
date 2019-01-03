@@ -63,7 +63,7 @@ public class MessagingTest {
         subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
         String content = "testcontent";
         Position pos = send("test", content);
-        assertThat(pos.toString(), equalTo("0"));
+        assertThat(pos.positionToString(), equalTo("0"));
         
         verify(callback, timeout(1000)).accept(messageCaptor.capture());
         Received received = messageCaptor.getValue();
