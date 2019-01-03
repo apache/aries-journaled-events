@@ -107,11 +107,10 @@ public class KafkaMessaging implements Messaging {
     }
 
     @Override
-    public Position send(String topic, Message message) {
+    public void send(String topic, Message message) {
         ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(topic, PARTITION, null, message.getPayload(), toHeaders(message.getProperties()));
         try {
-            RecordMetadata metadata = kafkaProducer().send(record).get();
-            return new KafkaPosition(metadata.partition(), metadata.offset());
+            kafkaProducer().send(record).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(format("Failed to send mesage on topic %s", topic), e);
         }

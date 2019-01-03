@@ -18,8 +18,6 @@ package org.apache.aries.events.kafka;
 
 import org.apache.aries.events.api.Position;
 
-import static org.apache.aries.events.kafka.KafkaMessaging.positionToString;
-
 public final class KafkaPosition implements Position {
 
     private final int partition;
@@ -41,8 +39,16 @@ public final class KafkaPosition implements Position {
 
     @Override
     public String toString() {
-        // TODO shouldn't we use a specific signature "positionToString" for the position string ?
-        //      or alternatively document the toString semantic and relation to positionFromString in the API.
-        return positionToString(this);
+        return positionToString();
+    }
+
+    @Override
+    public String positionToString() {
+        return KafkaMessaging.positionToString(this);
+    }
+
+    @Override
+    public int compareTo(Position p) {
+        return Long.compare(((KafkaPosition)p).offset, offset);
     }
 }
