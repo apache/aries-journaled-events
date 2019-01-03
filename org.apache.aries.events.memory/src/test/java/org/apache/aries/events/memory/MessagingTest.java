@@ -3,6 +3,7 @@ package org.apache.aries.events.memory;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -55,20 +56,18 @@ public class MessagingTest {
     @Test
     public void testPositionFromString() {
         Position pos = messaging.positionFromString("1");
-        assertThat(pos.getOffset(), equalTo(1l));
+        assertEquals(0, pos.compareTo(new MemoryPosition(1)));
     }
     
     @Test
     public void testSend() {
         subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
         String content = "testcontent";
-        Position pos = send("test", content);
-        assertThat(pos.toString(), equalTo("0"));
-        
+        send("test", content);
         verify(callback, timeout(1000)).accept(messageCaptor.capture());
         Received received = messageCaptor.getValue();
         assertThat(received.getMessage().getPayload(), equalTo(toBytes(content)));
-        assertThat(received.getPosition().getOffset(), equalTo(0l));
+        assertEquals(0, received.getPosition().compareTo(new MemoryPosition(0)));
         assertThat(received.getMessage().getProperties().size(), equalTo(1));
         assertThat(received.getMessage().getProperties().get("my"), equalTo("testvalue"));
     }
@@ -132,11 +131,11 @@ public class MessagingTest {
         return new String(rec.getMessage().getPayload(), Charset.forName("UTF-8"));
     }
     
-    private Position send(String topic, String content) {
+    private void send(String topic, String content) {
         Map<String, String> props = new HashMap<String, String>();
         props.put("my", "testvalue");
         Message message = messaging.newMessage(toBytes(content), props);
-        return messaging.send(topic, message);
+        messaging.send(topic, message);
     }
 
     private byte[] toBytes(String content) {

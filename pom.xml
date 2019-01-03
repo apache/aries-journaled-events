@@ -38,10 +38,6 @@
         <url>https://issues.apache.org/jira/browse/ARIES</url>
     </issueManagement>
 
-    <prerequisites>
-        <maven>3.5</maven>
-    </prerequisites>
-
     <inceptionYear>2018</inceptionYear>
 
     <modules>

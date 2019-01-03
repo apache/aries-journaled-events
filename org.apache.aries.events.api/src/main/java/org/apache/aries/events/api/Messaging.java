@@ -28,7 +28,7 @@ public interface Messaging {
      * Send a message to a topic. When this method returns the message 
      * is safely persisted.
      */
-    Position send(String topic, Message message);
+    void send(String topic, Message message);
 
     /**
      * Subscribe to a topic. The callback is called for each message received.

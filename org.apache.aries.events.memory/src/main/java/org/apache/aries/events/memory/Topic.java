@@ -17,9 +17,7 @@
  */
 package org.apache.aries.events.memory;
 
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +36,6 @@ public class Topic {
 
     private String topicName;
     private Journal<Message> journal;
-    private Set<Subscription> subscriptions = new HashSet<>();
 
     public Topic(String topicName) {
         this.topicName = topicName;
@@ -51,12 +48,12 @@ public class Topic {
     }
 
     public Subscription subscribe(Position position, Seek seek, Consumer<Received> callback) {
-        long startOffset = getStartOffset(position, seek);
+        long startOffset = getStartOffset((MemoryPosition) position, seek);
         log.debug("Consuming from " + startOffset);
         return new TopicSubscription(startOffset, callback);
     }
 
-    private long getStartOffset(Position position, Seek seek) {
+    private long getStartOffset(MemoryPosition position, Seek seek) {
         if (position != null) {
             return position.getOffset();
         } else {
@@ -116,7 +113,6 @@ public class Topic {
             } catch (InterruptedException e) {
                 // Ignore
             }
-            subscriptions.remove(this);
         }
 
     }

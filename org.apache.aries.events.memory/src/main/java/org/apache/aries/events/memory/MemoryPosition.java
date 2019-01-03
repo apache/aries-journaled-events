@@ -27,12 +27,17 @@ class MemoryPosition implements Position {
         this.offset = offset;
     }
 
-    public long getOffset() {
+    long getOffset() {
         return offset;
     }
 
     @Override
-    public String toString() {
-        return new Long(offset).toString();
+    public String positionToString() {
+        return Long.toString(offset);
+    }
+
+    @Override
+    public int compareTo(Position p) {
+        return Long.compare(((MemoryPosition)p).offset, offset);
     }
 }
