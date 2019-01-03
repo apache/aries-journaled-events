@@ -32,7 +32,7 @@ class MemoryPosition implements Position {
     }
 
     @Override
-    public String toString() {
+    public String positionToString() {
         return Long.toString(offset);
     }
 
