@@ -19,14 +19,14 @@ package org.apache.aries.events.memory;
 
 import java.util.Map;
 
-import org.apache.aries.events.api.Message;
+import org.apache.aries.events.api.Event;
 
-class MemoryMessage implements Message {
+class MemoryEvent implements Event {
 
     private byte[] payload;
     private Map<String, String> properties;
 
-    MemoryMessage(byte[] payload, Map<String, String> props) {
+    MemoryEvent(byte[] payload, Map<String, String> props) {
         this.payload = payload;
         properties = props;
     }

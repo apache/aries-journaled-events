@@ -19,18 +19,18 @@ package org.apache.aries.events.api;
 
 public final class Received {
     private Position position;
-    private Message message;
+    private Event event;
     
-    public Received(Position position, Message message) {
+    public Received(Position position, Event event) {
         this.position = position;
-        this.message = message;
+        this.event = event;
     }
     
     public Position getPosition() {
         return position;
     }
     
-    public Message getMessage() {
-        return message;
+    public Event getEvent() {
+        return event;
     }
 }

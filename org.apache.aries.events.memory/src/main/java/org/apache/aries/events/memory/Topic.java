@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.apache.aries.events.api.Message;
+import org.apache.aries.events.api.Event;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
@@ -35,15 +35,15 @@ public class Topic {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     private String topicName;
-    private Journal<Message> journal;
+    private Journal<Event> journal;
 
     public Topic(String topicName) {
         this.topicName = topicName;
         this.journal = new Journal<>();
     }
 
-    public Position send(Message message) {
-        long offset = this.journal.append(message);
+    public Position send(Event event) {
+        long offset = this.journal.append(event);
         return new MemoryPosition(offset);
     }
 
@@ -84,7 +84,7 @@ public class Topic {
         
         private void poll() {
             while (running) {
-                Entry<Long, Message> entry = journal.getNext(currentOffset);
+                Entry<Long, Event> entry = journal.getNext(currentOffset);
                 if (entry != null) {
                     long offset = entry.getKey();
                     try {

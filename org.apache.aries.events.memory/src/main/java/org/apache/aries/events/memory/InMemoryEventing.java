@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import org.apache.aries.events.api.Message;
-import org.apache.aries.events.api.Messaging;
+import org.apache.aries.events.api.Event;
+import org.apache.aries.events.api.Eventing;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
@@ -32,13 +32,13 @@ import org.osgi.service.component.annotations.Component;
 
 @Component
 @Type("memory")
-public class InMemoryMessaging implements Messaging {
+public class InMemoryEventing implements Eventing {
     private Map<String, Topic> topics = new ConcurrentHashMap<>();
 
     @Override
-    public Position send(String topicName, Message message) {
+    public Position send(String topicName, Event event) {
         Topic topic = getOrCreate(topicName);
-        return topic.send(message);
+        return topic.send(event);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class InMemoryMessaging implements Messaging {
     }
 
     @Override
-    public Message newMessage(byte[] payload, Map<String, String> props) {
-        return new MemoryMessage(payload, props);
+    public Event newEvent(byte[] payload, Map<String, String> props) {
+        return new MemoryEvent(payload, props);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * TODO If we allow wild card consumption then a message also needs a topic
  */
-public interface Message {
+public interface Event {
     byte[] getPayload();
     
     Map<String, String> getProperties();
