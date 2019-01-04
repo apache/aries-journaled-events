@@ -43,6 +43,7 @@
     <modules>
         <module>org.apache.aries.events.api</module>
         <module>org.apache.aries.events.memory</module>
+        <module>org.apache.aries.events.mongo</module>
     </modules>
 
     <properties>
