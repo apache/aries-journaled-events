@@ -27,6 +27,7 @@ import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
+import org.apache.aries.events.api.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,10 @@ public class Topic {
         return new MemoryPosition(offset);
     }
 
-    public Subscription subscribe(Position position, Seek seek, Consumer<Received> callback) {
-        long startOffset = getStartOffset((MemoryPosition) position, seek);
+    public Subscription subscribe(SubscribeRequest request) {
+        long startOffset = getStartOffset((MemoryPosition) request.getPosition(), request.getSeek());
         log.debug("Consuming from " + startOffset);
-        return new TopicSubscription(startOffset, callback);
+        return new TopicSubscription(startOffset, request.getCallback());
     }
 
     private long getStartOffset(MemoryPosition position, Seek seek) {
@@ -59,10 +60,8 @@ public class Topic {
         } else {
             if (seek == Seek.earliest) {
                 return this.journal.getFirstOffset();
-            } else if (seek == Seek.latest) {
-                return this.journal.getLastOffset() + 1;
             } else {
-                throw new IllegalArgumentException("Seek must not be null");
+                return this.journal.getLastOffset() + 1;
             }
         }
     }
