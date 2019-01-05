@@ -40,7 +40,7 @@ public interface Messaging {
      *
      * @param request to subscribe
      */
-    Subscription subscribe(SubscribeRequest request);
+    Subscription subscribe(SubscribeRequestBuilder request);
 
     /**
      * Create a message with payload and metadata
