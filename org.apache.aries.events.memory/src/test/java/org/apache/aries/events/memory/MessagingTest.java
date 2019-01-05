@@ -1,9 +1,12 @@
 package org.apache.aries.events.memory;
 
+import static org.apache.aries.events.api.SubscribeRequest.to;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -14,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -22,6 +26,7 @@ import org.apache.aries.events.api.Messaging;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
+import org.apache.aries.events.api.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
 import org.junit.After;
 import org.junit.Before;
@@ -29,9 +34,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 public class MessagingTest {
     
+    private static final long MAX_MANY = 100000l;
+
     @Mock
     private Consumer<Received> callback;
     
@@ -56,15 +64,16 @@ public class MessagingTest {
     @Test
     public void testPositionFromString() {
         Position pos = messaging.positionFromString("1");
-        assertEquals(0, pos.compareTo(new MemoryPosition(1)));
+        assertThat(pos.compareTo(new MemoryPosition(1)), equalTo(0));
+        assertThat(pos.positionToString(), equalTo("1"));
     }
     
     @Test
     public void testSend() {
-        subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
+        subscribe(to("test", callback).seek(Seek.earliest));
         String content = "testcontent";
         send("test", content);
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
         Received received = messageCaptor.getValue();
         assertThat(received.getMessage().getPayload(), equalTo(toBytes(content)));
         assertEquals(0, received.getPosition().compareTo(new MemoryPosition(0)));
@@ -72,44 +81,52 @@ public class MessagingTest {
         assertThat(received.getMessage().getProperties().get("my"), equalTo("testvalue"));
     }
     
-    @Test(expected=IllegalArgumentException.class)
-    public void testInvalid() {
-        messaging.subscribe("test", null, null, callback);
+    @Test(expected=NullPointerException.class)
+    public void testInvalidSubscribe() {
+        subscribe(to("test", callback).seek(null));
+    }
+    
+    @Test
+    public void testExceptionInHandler() {
+        doThrow(new RuntimeException("Expected exception")).when(callback).accept(Mockito.any(Received.class));
+        subscribe(to("test", callback));
+        send("test", "testcontent");
+        assertMessages(1);
     }
 
     @Test
     public void testEarliestBefore() {
-        subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
+        subscribe(to("test", callback).seek(Seek.earliest));
         send("test", "testcontent");
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
-    
+
     @Test
     public void testEarliestAfter() {
         send("test", "testcontent");
-        subscriptions.add(messaging.subscribe("test", null, Seek.earliest, callback));
+        subscribe(to("test", callback).seek(Seek.earliest));
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
     
     @Test
     public void testLatestBefore() {
-        subscriptions.add(messaging.subscribe("test", null, Seek.latest, callback));
+        subscribe(to("test", callback));
         send("test", "testcontent");
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
     
     @Test
     public void testLatest() {
         send("test", "testcontent");
-        subscriptions.add(messaging.subscribe("test", null, Seek.latest, callback));
+        subscribe(to("test", callback));
         send("test", "testcontent2");
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
     }
     
@@ -117,9 +134,32 @@ public class MessagingTest {
     public void testFrom1() {
         send("test", "testcontent");
         send("test", "testcontent2");
-        subscriptions.add(messaging.subscribe("test", new MemoryPosition(1l), Seek.earliest, callback));
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        subscribe(to("test", callback).startAt(new MemoryPosition(1l)).seek(Seek.earliest));
+        assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
+    }
+    
+    @Test
+    public void testMany() {
+        AtomicLong count = new AtomicLong();
+        Consumer<Received> manyCallback = rec -> { count.incrementAndGet(); };
+        messaging.subscribe(to("test", manyCallback));
+        for (long c=0; c < MAX_MANY; c++) {
+            send("test", "content " + c);
+            if (c % 10000 == 0) {
+                System.out.println("Sending " + c);
+            }
+            
+        }
+        await().until(count::get, equalTo(MAX_MANY)); 
+    }
+    
+    private void assertMessages(int num) {
+        verify(callback, timeout(1000).times(num)).accept(messageCaptor.capture());
+    }
+
+    private void subscribe(SubscribeRequest request) {
+        this.subscriptions.add(messaging.subscribe(request));
     }
 
     private List<String> messageContents() {

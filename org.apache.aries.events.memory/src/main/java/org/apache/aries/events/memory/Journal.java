@@ -17,20 +17,38 @@
  */
 package org.apache.aries.events.memory;
 
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class Journal<T> {
-    private AtomicLong nextOffset = new AtomicLong();
-    private ConcurrentNavigableMap<Long, T> messages = new ConcurrentSkipListMap<>();
+class Journal<T> {
+    private final int keepAtLeast;
+    private final AtomicLong nextOffset = new AtomicLong();
+    private final ConcurrentNavigableMap<Long, T> messages = new ConcurrentSkipListMap<>();
+    private final AtomicLong count = new AtomicLong();
+    
+    public Journal(int keepAtLeast) {
+        this.keepAtLeast = keepAtLeast;
+    }
     
     public long append(T message) {
+        if (count.incrementAndGet() > keepAtLeast * 2) {
+            evict();
+        }
         Long offset = nextOffset.getAndIncrement();
         messages.put(offset, message);
         return offset;
+    }
+
+    private synchronized void evict() {
+        Iterator<Long> it = messages.keySet().iterator();
+        for (int c = 0; c < keepAtLeast; c++) {
+            messages.remove(it.next());
+        }
+        count.set(0);
     }
 
     public long getFirstOffset() {
