@@ -18,7 +18,6 @@
 package org.apache.aries.events.api;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Journaled messaging API
@@ -39,7 +38,7 @@ public interface Messaging {
      * @param callback will be called for each message received
      * @return Returned subscription must be closed by the caller to unsubscribe
      */
-    Subscription subscribe(String topic, Position position, Seek seek, Consumer<Received> callback);
+    Subscription subscribe(SubscribeRequest request);
 
     /**
      * Create a message with payload and metadata
