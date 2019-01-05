@@ -69,7 +69,7 @@ public class MessagingTest {
         subscribe(to("test", callback).seek(Seek.earliest));
         String content = "testcontent";
         send("test", content);
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
         Received received = messageCaptor.getValue();
         assertThat(received.getMessage().getPayload(), equalTo(toBytes(content)));
         assertEquals(0, received.getPosition().compareTo(new MemoryPosition(0)));
@@ -87,7 +87,7 @@ public class MessagingTest {
         doThrow(new RuntimeException("Expected exception")).when(callback).accept(Mockito.any(Received.class));
         subscribe(to("test", callback));
         send("test", "testcontent");
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
     }
 
     @Test
@@ -95,16 +95,16 @@ public class MessagingTest {
         subscribe(to("test", callback).seek(Seek.earliest));
         send("test", "testcontent");
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
-    
+
     @Test
     public void testEarliestAfter() {
         send("test", "testcontent");
         subscribe(to("test", callback).seek(Seek.earliest));
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
     
@@ -113,7 +113,7 @@ public class MessagingTest {
         subscribe(to("test", callback));
         send("test", "testcontent");
         send("test", "testcontent2");
-        verify(callback, timeout(1000).times(2)).accept(messageCaptor.capture());
+        assertMessages(2);
         assertThat(messageContents(), contains("testcontent", "testcontent2"));
     }
     
@@ -122,7 +122,7 @@ public class MessagingTest {
         send("test", "testcontent");
         subscribe(to("test", callback));
         send("test", "testcontent2");
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
     }
     
@@ -131,10 +131,14 @@ public class MessagingTest {
         send("test", "testcontent");
         send("test", "testcontent2");
         subscribe(to("test", callback).startAt(new MemoryPosition(1l)).seek(Seek.earliest));
-        verify(callback, timeout(1000)).accept(messageCaptor.capture());
+        assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
     }
     
+    private void assertMessages(int num) {
+        verify(callback, timeout(1000).times(num)).accept(messageCaptor.capture());
+    }
+
     private void subscribe(SubscribeRequest request) {
         this.subscriptions.add(messaging.subscribe(request));
     }
