@@ -21,5 +21,14 @@ package org.apache.aries.events.api;
  * Starting position when no Position is available 
  */
 public enum Seek {
-    earliest, latest;
+
+    /**
+     * Seek to the first position (happened the earliest) on a topic.
+     */
+    earliest,
+
+    /**
+     * Seek to the last position (happened the latest) on a topic.
+     */
+    latest;
 }

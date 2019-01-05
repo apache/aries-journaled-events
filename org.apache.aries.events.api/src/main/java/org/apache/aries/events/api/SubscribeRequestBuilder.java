@@ -23,19 +23,13 @@ import java.util.function.Consumer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A Subscription request to consume messages from a topic.
- */
 @ParametersAreNonnullByDefault
-public final class SubscribeRequest {
-    private final String topic;
-    private final Consumer<Received> callback;
-    private Position position;
-    private Seek seek = Seek.latest;
+public final class SubscribeRequestBuilder {
     
-    private SubscribeRequest(String topic, Consumer<Received> callback) {
-        this.topic = topic;
-        this.callback = callback;
+    private SubscribeRequest subscribeRequest;
+
+    private SubscribeRequestBuilder(SubscribeRequest subscribeRequest) {
+        this.subscribeRequest = subscribeRequest;
     }
 
     /**
@@ -45,21 +39,21 @@ public final class SubscribeRequest {
      * @param callback to be invoked for each message consumed
      * @return a new subscription request
      */
-    public static SubscribeRequest to(String topic, Consumer<Received> callback) {
-        return new SubscribeRequest(topic, callback);
+    public static SubscribeRequestBuilder to(String topic, Consumer<Received> callback) {
+        return new SubscribeRequestBuilder(new SubscribeRequest(topic, callback));
     }
-
+    
     /**
      * Set the {@code Position} position to start consuming from.
      *
      * @param position in the topic to start consuming from
      * @return the updated subscribe request
      */
-    public SubscribeRequest startAt(Position position) {
-        this.position = position;
+    public SubscribeRequestBuilder startAt(Position position) {
+        this.subscribeRequest.position = position;
         return this;
     }
-
+    
     /**
      * Set the earliest or latest position to start consuming from
      * when the position is {@code null} or not valid. By default,
@@ -68,24 +62,41 @@ public final class SubscribeRequest {
      * @param seek where to start consuming when no valid position is specified
      * @return the updated subscribe request
      */
-    public SubscribeRequest seek(Seek seek) {
-        this.seek = requireNonNull(seek, "Seek must not be null");
+    public SubscribeRequestBuilder seek(Seek seek) {
+        this.subscribeRequest.seek = requireNonNull(seek, "Seek must not be null");
         return this;
     }
+
     
-    public String getTopic() {
-        return topic;
+    public SubscribeRequest build() {
+        return subscribeRequest;
     }
-    
-    public Position getPosition() {
-        return position;
-    }
-    
-    public Seek getSeek() {
-        return seek;
-    }
-    
-    public Consumer<Received> getCallback() {
-        return callback;
+
+    public static class SubscribeRequest {
+        private final String topic;
+        private final Consumer<Received> callback;
+        private Position position;
+        private Seek seek = Seek.latest;
+        
+        private SubscribeRequest(String topic, Consumer<Received> callback) {
+            this.topic = topic;
+            this.callback = callback;
+        }
+        
+        public String getTopic() {
+            return topic;
+        }
+        
+        public Position getPosition() {
+            return position;
+        }
+        
+        public Seek getSeek() {
+            return seek;
+        }
+        
+        public Consumer<Received> getCallback() {
+            return callback;
+        }
     }
 }

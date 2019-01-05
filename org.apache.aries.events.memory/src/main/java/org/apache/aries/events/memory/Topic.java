@@ -26,7 +26,7 @@ import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
-import org.apache.aries.events.api.SubscribeRequest;
+import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

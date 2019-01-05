@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
 import org.apache.aries.events.api.Position;
-import org.apache.aries.events.api.SubscribeRequest;
+import org.apache.aries.events.api.SubscribeRequestBuilder;
+import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
 import org.apache.aries.events.api.Type;
 import org.osgi.service.component.annotations.Component;
@@ -50,7 +51,8 @@ public class InMemoryMessaging implements Messaging {
     }
 
     @Override
-    public Subscription subscribe(SubscribeRequest request) {
+    public Subscription subscribe(SubscribeRequestBuilder requestBuilder) {
+        SubscribeRequest request = requestBuilder.build();
         Topic topic = getOrCreate(request.getTopic());
         return topic.subscribe(request);
     }

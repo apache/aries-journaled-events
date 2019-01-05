@@ -1,6 +1,6 @@
 package org.apache.aries.events.memory;
 
-import static org.apache.aries.events.api.SubscribeRequest.to;
+import static org.apache.aries.events.api.SubscribeRequestBuilder.to;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
@@ -26,7 +26,7 @@ import org.apache.aries.events.api.Messaging;
 import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
-import org.apache.aries.events.api.SubscribeRequest;
+import org.apache.aries.events.api.SubscribeRequestBuilder;
 import org.apache.aries.events.api.Subscription;
 import org.junit.After;
 import org.junit.Before;
@@ -158,7 +158,7 @@ public class MessagingTest {
         verify(callback, timeout(1000).times(num)).accept(messageCaptor.capture());
     }
 
-    private void subscribe(SubscribeRequest request) {
+    private void subscribe(SubscribeRequestBuilder request) {
         this.subscriptions.add(messaging.subscribe(request));
     }
 
