@@ -63,7 +63,7 @@ public final class SubscribeRequest {
     /**
      * Set the earliest or latest position to start consuming from
      * when the position is {@code null} or not valid. By default,
-     * seek is set to {@link Seek#earliest}.
+     * seek is set to {@link Seek#latest}.
      *
      * @param seek where to start consuming when no valid position is specified
      * @return the updated subscribe request
