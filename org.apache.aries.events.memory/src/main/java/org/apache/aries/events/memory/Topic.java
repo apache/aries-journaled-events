@@ -31,15 +31,15 @@ import org.apache.aries.events.api.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Topic {
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+class Topic {
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private String topicName;
-    private Journal<Message> journal;
+    private final String topicName;
+    private final Journal<Message> journal;
 
-    public Topic(String topicName) {
+    public Topic(String topicName, int keepAtLeast) {
         this.topicName = topicName;
-        this.journal = new Journal<>();
+        this.journal = new Journal<>(keepAtLeast);
     }
 
     public synchronized Position send(Message message) {

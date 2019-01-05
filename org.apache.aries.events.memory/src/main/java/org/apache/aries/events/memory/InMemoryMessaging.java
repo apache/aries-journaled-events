@@ -31,7 +31,17 @@ import org.osgi.service.component.annotations.Component;
 @Component
 @Type("memory")
 public class InMemoryMessaging implements Messaging {
-    private Map<String, Topic> topics = new ConcurrentHashMap<>();
+    private final Map<String, Topic> topics = new ConcurrentHashMap<>();
+    private final int keepAtLeast;
+    
+    public InMemoryMessaging() {
+        this(10000);
+    }
+
+    public InMemoryMessaging(int keepAtLeast) {
+        this.keepAtLeast = keepAtLeast;
+        
+    }
 
     @Override
     public void send(String topicName, Message message) {
@@ -57,7 +67,7 @@ public class InMemoryMessaging implements Messaging {
     }
 
     private Topic getOrCreate(String topicName) {
-        return topics.computeIfAbsent(topicName, Topic::new);
+        return topics.computeIfAbsent(topicName, topicName2 -> new Topic(topicName2, keepAtLeast));
     }
 
 }

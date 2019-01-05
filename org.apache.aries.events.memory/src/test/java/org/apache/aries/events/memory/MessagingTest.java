@@ -1,6 +1,7 @@
 package org.apache.aries.events.memory;
 
 import static org.apache.aries.events.api.SubscribeRequest.to;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,8 @@ import org.mockito.Mockito;
 
 public class MessagingTest {
     
+    private static final long MAX_MANY = 100000l;
+
     @Mock
     private Consumer<Received> callback;
     
@@ -133,6 +137,21 @@ public class MessagingTest {
         subscribe(to("test", callback).startAt(new MemoryPosition(1l)).seek(Seek.earliest));
         assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
+    }
+    
+    @Test
+    public void testMany() {
+        AtomicLong count = new AtomicLong();
+        Consumer<Received> manyCallback = rec -> { count.incrementAndGet(); };
+        messaging.subscribe(to("test", manyCallback));
+        for (long c=0; c < MAX_MANY; c++) {
+            send("test", "content " + c);
+            if (c % 10000 == 0) {
+                System.out.println("Sending " + c);
+            }
+            
+        }
+        await().until(count::get, equalTo(MAX_MANY)); 
     }
     
     private void assertMessages(int num) {
