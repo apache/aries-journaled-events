@@ -24,13 +24,13 @@ import java.util.function.Consumer;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-public class SubscribeRequest {
+public final class SubscribeRequest {
     private final String topic;
     private final Consumer<Received> callback;
     private Position position;
     private Seek seek = Seek.latest;
     
-    public SubscribeRequest(String topic, Consumer<Received> callback) {
+    private SubscribeRequest(String topic, Consumer<Received> callback) {
         this.topic = topic;
         this.callback = callback;
     }
