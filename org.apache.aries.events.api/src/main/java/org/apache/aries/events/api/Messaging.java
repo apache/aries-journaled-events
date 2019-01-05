@@ -26,6 +26,11 @@ public interface Messaging {
     /**
      * Send a message to a topic. When this method returns the message 
      * is safely persisted.
+     *
+     * Messages can be consumed by subscribing to the topic via the #subscribe method.
+     *
+     * Two messages sent sequentially to the same topic by the same
+     * thread, are guaranteed to be consumed in the same order by all subscribers.
      */
     void send(String topic, Message message);
 
