@@ -30,13 +30,10 @@ public interface Messaging {
     void send(String topic, Message message);
 
     /**
-     * Subscribe to a topic. The callback is called for each message received.
-     * 
-     * @param topic to consume from. TODO Do we allow wild cards? 
-     * @param position in the topic to start consuming from 
-     * @param seek where to start from when position is not valid or null
-     * @param callback will be called for each message received
-     * @return Returned subscription must be closed by the caller to unsubscribe
+     * Subscribe to a topic.
+     * The returned subscription must be closed by the caller to unsubscribe.
+     *
+     * @param request to subscribe
      */
     Subscription subscribe(SubscribeRequest request);
 

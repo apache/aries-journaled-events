@@ -23,6 +23,9 @@ import java.util.function.Consumer;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+/**
+ * A Subscription request to consume messages from a topic.
+ */
 @ParametersAreNonnullByDefault
 public final class SubscribeRequest {
     private final String topic;
@@ -35,15 +38,36 @@ public final class SubscribeRequest {
         this.callback = callback;
     }
 
+    /**
+     * Build a subscription request for the given topic and {@code Consumer} callback.
+     *
+     * @param topic to consume from
+     * @param callback to be invoked for each message consumed
+     * @return a new subscription request
+     */
     public static SubscribeRequest to(String topic, Consumer<Received> callback) {
         return new SubscribeRequest(topic, callback);
     }
-    
+
+    /**
+     * Set the {@code Position} position to start consuming from.
+     *
+     * @param position in the topic to start consuming from
+     * @return the updated subscribe request
+     */
     public SubscribeRequest startAt(Position position) {
         this.position = position;
         return this;
     }
-    
+
+    /**
+     * Set the earliest or latest position to start consuming from
+     * when the position is {@code null} or not valid. By default,
+     * seek is set to {@link Seek#earliest}.
+     *
+     * @param seek where to start consuming when no valid position is specified
+     * @return the updated subscribe request
+     */
     public SubscribeRequest seek(Seek seek) {
         this.seek = requireNonNull(seek, "Seek must not be null");
         return this;
