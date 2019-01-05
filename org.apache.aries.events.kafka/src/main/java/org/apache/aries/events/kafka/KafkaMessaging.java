@@ -22,21 +22,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
 import org.apache.aries.events.api.Position;
-import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
+import org.apache.aries.events.api.SubscribeRequestBuilder;
+import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
 import org.apache.aries.events.api.Type;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -117,10 +116,11 @@ public class KafkaMessaging implements Messaging {
     }
 
     @Override
-    public Subscription subscribe(String topic, Position position, Seek seek, Consumer<Received> callback) {
-        KafkaConsumer<String, byte[]> consumer = buildKafkaConsumer(seek);
-        assignAndSeek(consumer, topic, position);
-        Subscription subscription = new KafkaSubscription(consumer, callback);
+    public Subscription subscribe(SubscribeRequestBuilder requestBuilder) {
+        SubscribeRequest request = requestBuilder.build();
+        KafkaConsumer<String, byte[]> consumer = buildKafkaConsumer(request.getSeek());
+        assignAndSeek(consumer, request.getTopic(), request.getPosition());
+        Subscription subscription = new KafkaSubscription(consumer, request.getCallback());
         // TODO pool the threads
         Thread thread = new Thread();
         thread.setDaemon(true);
