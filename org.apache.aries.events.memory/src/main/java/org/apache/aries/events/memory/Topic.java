@@ -20,7 +20,6 @@ package org.apache.aries.events.memory;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.apache.aries.events.api.Message;
@@ -43,8 +42,9 @@ public class Topic {
         this.journal = new Journal<>();
     }
 
-    public Position send(Message message) {
+    public synchronized Position send(Message message) {
         long offset = this.journal.append(message);
+        notifyAll();
         return new MemoryPosition(offset);
     }
 
@@ -66,53 +66,58 @@ public class Topic {
         }
     }
 
+    private synchronized Entry<Long, Message> waitNext(long currentOffset) throws InterruptedException {
+        Entry<Long, Message> entry = journal.getNext(currentOffset);
+        if (entry != null) {
+            return entry;
+        }
+        log.debug("Waiting for next message");
+        wait();
+        return journal.getNext(currentOffset);
+    }
+
     class TopicSubscription implements Subscription {
         private Consumer<Received> callback;
         private ExecutorService executor;
-        private volatile boolean running;
         private long currentOffset;
 
         TopicSubscription(long startOffset, Consumer<Received> callback) {
             this.currentOffset = startOffset;
             this.callback = callback;
-            this.running = true;
             String name = "Poller for " + topicName;
             this.executor = Executors.newSingleThreadExecutor(r -> new Thread(r, name));
             this.executor.execute(this::poll);
         }
-        
+
         private void poll() {
-            while (running) {
-                Entry<Long, Message> entry = journal.getNext(currentOffset);
-                if (entry != null) {
-                    long offset = entry.getKey();
-                    try {
-                        MemoryPosition position = new MemoryPosition(this.currentOffset);
-                        Received received = new Received(position, entry.getValue());
-                        callback.accept(received);
-                    } catch (Exception e) {
-                        log.warn(e.getMessage(), e);
-                    }
-                    this.currentOffset = offset + 1;
-                } else {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        // Ignore
+            try {
+                while (true) {
+                    Entry<Long, Message> entry = waitNext(currentOffset);
+                    if (entry != null) {
+                        handleMessage(entry);
                     }
                 }
+            } catch (InterruptedException e) {
+                log.debug("Poller thread for consumer on topic " + topicName + " stopped.");
             }
+        }
+
+        private void handleMessage(Entry<Long, Message> entry) {
+            long offset = entry.getKey();
+            try {
+                MemoryPosition position = new MemoryPosition(this.currentOffset);
+                Received received = new Received(position, entry.getValue());
+                callback.accept(received);
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+            }
+            this.currentOffset = offset + 1;
         }
 
         @Override
         public void close() {
-            this.running = false;
             executor.shutdown();
-            try {
-                executor.awaitTermination(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                // Ignore
-            }
+            executor.shutdownNow();
         }
 
     }
