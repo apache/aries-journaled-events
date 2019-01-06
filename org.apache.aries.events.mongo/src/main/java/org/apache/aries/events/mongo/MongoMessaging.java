@@ -73,10 +73,10 @@ public class MongoMessaging implements Messaging {
     // Private
     // *******************************************************
 
-    private CachingFactory<String, MessageSender> senderFactory = initializedInActivate();
-    private MongoEndpoint config = initializedInActivate();
-    private MongoClient client = initializedInActivate();
-    private MongoDatabase database = initializedInActivate();
+    private CachingFactory<String, MessageSender> senderFactory;
+    private MongoEndpoint config;
+    private MongoClient client;
+    private MongoDatabase database;
 
     @Activate
     protected void activate(MongoEndpoint config) {
@@ -94,10 +94,6 @@ public class MongoMessaging implements Messaging {
     @Deactivate
     protected void deactivate() {
         client.close();
-    }
-
-    private static <T> T initializedInActivate() {
-        return null;
     }
 
 }

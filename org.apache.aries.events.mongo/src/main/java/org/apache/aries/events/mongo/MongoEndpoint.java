@@ -21,9 +21,8 @@ package org.apache.aries.events.mongo;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-/** Mongo endpoint configuration. (not used yet) */
 @ObjectClassDefinition(
-        name        = "Adobe Granite Mongo Distribution - MongoDB endpoint",
+        name        = "MongoDB configuration",
         description = "Mongodb URI"
 )
 public @interface MongoEndpoint {
