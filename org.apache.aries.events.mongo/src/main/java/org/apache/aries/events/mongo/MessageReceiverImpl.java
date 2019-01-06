@@ -127,7 +127,7 @@ final class MessageReceiverImpl implements MessageReceiver {
                 if (idx == startIndex + i) {
                     Binary payload = document.get(PAYLOAD, Binary.class);
                     Map<String, String> props = (Map<String, String>) document.get(Fields.PROPS);
-                    Message message = new MongoMessage(payload.getData(), props);
+                    Message message = new Message(payload.getData(), props);
                     collected.add(message);
                 } else {
                     if (i == 0) {
