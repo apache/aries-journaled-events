@@ -74,21 +74,19 @@ public class MongoMessaging implements Messaging {
     // *******************************************************
 
     private CachingFactory<String, MessageSender> senderFactory;
-    private MongoEndpoint config;
     private MongoClient client;
     private MongoDatabase database;
 
     @Activate
     protected void activate(MongoEndpoint config) {
-	this.config = config;
-	MongoClientURI uri = new MongoClientURI(config.mongoUri());
-	client = new MongoClient(uri);
-	String dbName = Optional.ofNullable(uri.getDatabase()).orElse(DEFAULT_DB_NAME);
-	this.database = client.getDatabase(dbName);
-	this.senderFactory = cachingFactory(topic -> {
-	    MongoCollection<Document> collection = database.getCollection(topic);
-	    return messageSender(collection, config.maxAge());
-	});
+        MongoClientURI uri = new MongoClientURI(config.mongoUri());
+        client = new MongoClient(uri);
+        String dbName = Optional.ofNullable(uri.getDatabase()).orElse(DEFAULT_DB_NAME);
+        this.database = client.getDatabase(dbName);
+        this.senderFactory = cachingFactory(topic -> {
+            MongoCollection<Document> collection = database.getCollection(topic);
+            return messageSender(collection, config.maxAge());
+        });
     }
 
     @Deactivate
