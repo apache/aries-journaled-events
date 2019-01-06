@@ -17,13 +17,30 @@
  */
 package org.apache.aries.events.api;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * TODO If we allow wild card consumption then a message also needs a topic
  */
-public interface Message {
-    byte[] getPayload();
+public final class Message {
+
+    private final byte[] payload;
+    private final Map<String, String> properties;
+
+    public Message(byte[] payload, Map<String, String> properties) {
+        this.payload = payload.clone();
+        this.properties = unmodifiableMap(new HashMap<>(properties));
+    }
+
+    public byte[] getPayload() {
+        return payload.clone();
+    }
     
-    Map<String, String> getProperties();
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
 }

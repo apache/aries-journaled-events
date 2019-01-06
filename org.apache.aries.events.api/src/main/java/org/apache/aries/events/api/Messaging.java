@@ -43,14 +43,6 @@ public interface Messaging {
     Subscription subscribe(SubscribeRequestBuilder request);
 
     /**
-     * Create a message with payload and metadata
-     * @param payload
-     * @param props
-     * @return
-     */
-    Message newMessage(byte[] payload, Map<String, String> props);
-
-    /**
      * Deserialize the position from the string
      * 
      * @param position
