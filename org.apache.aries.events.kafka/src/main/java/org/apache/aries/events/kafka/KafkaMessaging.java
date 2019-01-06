@@ -129,11 +129,6 @@ public class KafkaMessaging implements Messaging {
     }
 
     @Override
-    public Message newMessage(byte[] payload, Map<String, String> props) {
-        return new KafkaMessage(payload, props);
-    }
-
-    @Override
     public Position positionFromString(String position) {
         String[] chunks = position.split(":");
         if (chunks.length != 2) {
@@ -163,7 +158,7 @@ public class KafkaMessaging implements Messaging {
     }
 
     static Message toMessage(ConsumerRecord<String, byte[]> record) {
-        return new KafkaMessage(record.value(), toProperties(record.headers()));
+        return new Message(record.value(), toProperties(record.headers()));
     }
 
 
