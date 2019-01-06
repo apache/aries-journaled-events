@@ -42,14 +42,6 @@ public interface Messaging {
     Subscription subscribe(String topic, Position position, Seek seek, Consumer<Received> callback);
 
     /**
-     * Create a message with payload and metadata
-     * @param payload
-     * @param props
-     * @return
-     */
-    Message newMessage(byte[] payload, Map<String, String> props);
-
-    /**
      * Deserialize the position from the string
      * 
      * @param position

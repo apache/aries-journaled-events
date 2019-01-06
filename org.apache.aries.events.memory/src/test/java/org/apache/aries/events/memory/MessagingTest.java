@@ -145,7 +145,7 @@ public class MessagingTest {
     private void send(String topic, String content) {
         Map<String, String> props = new HashMap<String, String>();
         props.put("my", "testvalue");
-        Message message = messaging.newMessage(toBytes(content), props);
+        Message message = new Message(toBytes(content), props);
         messaging.send(topic, message);
     }
 
