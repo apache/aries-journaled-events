@@ -15,32 +15,27 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.apache.aries.events.api;
+package org.apache.aries.events.mongo;
 
-import java.util.HashMap;
+import org.apache.aries.events.api.Message;
+
 import java.util.Map;
 
-import static java.util.Collections.unmodifiableMap;
-
 /**
- * TODO If we allow wild card consumption then a message also needs a topic
+ * Provides an API for publishing data to a distribution log
  */
-public final class Message {
+public interface MessageSender extends AutoCloseable {
 
-    private final byte[] payload;
-    private final Map<String, String> properties;
-
-    public Message(byte[] payload, Map<String, String> properties) {
-        this.payload = payload.clone();
-        this.properties = unmodifiableMap(new HashMap<>(properties));
-    }
-
-    public byte[] getPayload() {
-        return payload.clone();
-    }
-    
-    public Map<String, String> getProperties() {
-        return properties;
-    }
+    /**
+     * Publishes a single message to a log.
+     * @param message specifies a message to publish.
+     *             The following value types are supported:
+     *             Integer
+     *             Long
+     *             Boolean
+     *             String
+     *             byte[]
+     */
+    void send(Message message);
 
 }

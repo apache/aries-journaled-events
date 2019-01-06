@@ -15,30 +15,42 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.apache.aries.events.memory;
 
-import java.util.Map;
+package org.apache.aries.events.mongo;
 
-import org.apache.aries.events.api.Message;
+import org.apache.aries.events.api.Position;
 
-class MemoryMessage implements Message {
+class MongoPosition implements Position {
 
-    private byte[] payload;
-    private Map<String, String> properties;
+    static Position position(long index) {
+        return new MongoPosition(index);
+    }
 
-    MemoryMessage(byte[] payload, Map<String, String> props) {
-        this.payload = payload;
-        properties = props;
+    static long index(Position position) {
+        return ((MongoPosition) position).index;
     }
 
     @Override
-    public byte[] getPayload() {
-        return this.payload;
+    public String positionToString() {
+        return String.valueOf(index);
     }
 
     @Override
-    public Map<String, String> getProperties() {
-        return this.properties;
+    public int compareTo(Position o) {
+        long thatIndex = ((MongoPosition) o).index;
+        if (this.index > thatIndex) return 1;
+        if (this.index == thatIndex) return 0;
+	return -1;
+    }
+
+    // *******************************************************
+    // Private
+    // *******************************************************
+
+    private final long index;
+
+    private MongoPosition(long index) {
+	this.index = index;
     }
 
 }

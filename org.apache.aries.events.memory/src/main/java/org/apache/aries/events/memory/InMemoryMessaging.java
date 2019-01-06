@@ -58,11 +58,6 @@ public class InMemoryMessaging implements Messaging {
     }
 
     @Override
-    public Message newMessage(byte[] payload, Map<String, String> props) {
-        return new MemoryMessage(payload, props);
-    }
-
-    @Override
     public Position positionFromString(String position) {
         long offset = Long.parseLong(position);
         return new MemoryPosition(offset);
