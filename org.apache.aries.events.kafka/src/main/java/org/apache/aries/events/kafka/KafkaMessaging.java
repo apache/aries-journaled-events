@@ -18,6 +18,7 @@ package org.apache.aries.events.kafka;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -49,6 +51,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
@@ -71,6 +75,8 @@ import static org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_
 @Component(service = Messaging.class, configurationPolicy = ConfigurationPolicy.REQUIRE)
 @Designate(ocd = KafkaEndpoint.class)
 public class KafkaMessaging implements Messaging {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaMessaging.class);
 
     /**
      * The partition to send and receive records.
@@ -109,7 +115,8 @@ public class KafkaMessaging implements Messaging {
     public void send(String topic, Message message) {
         ProducerRecord<String, byte[]> record = new ProducerRecord<String, byte[]>(topic, PARTITION, null, message.getPayload(), toHeaders(message.getProperties()));
         try {
-            kafkaProducer().send(record).get();
+            RecordMetadata metadata = kafkaProducer().send(record).get();
+            LOG.info(format("Sent to %s", metadata));
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(format("Failed to send mesage on topic %s", topic), e);
         }
@@ -119,10 +126,23 @@ public class KafkaMessaging implements Messaging {
     public Subscription subscribe(SubscribeRequestBuilder requestBuilder) {
         SubscribeRequest request = requestBuilder.build();
         KafkaConsumer<String, byte[]> consumer = buildKafkaConsumer(request.getSeek());
-        assignAndSeek(consumer, request.getTopic(), request.getPosition());
-        Subscription subscription = new KafkaSubscription(consumer, request.getCallback());
+
+        TopicPartition topicPartition = new TopicPartition(request.getTopic(), PARTITION);
+
+        Collection<TopicPartition> topicPartitions = singleton(topicPartition);
+        consumer.assign(topicPartitions);
+
+        if (request.getPosition() != null) {
+            consumer.seek(topicPartition, asKafkaPosition(request.getPosition()).getOffset());
+        } else if (request.getSeek() == Seek.earliest) {
+            consumer.seekToBeginning(topicPartitions);
+        } else {
+            consumer.seekToEnd(topicPartitions);
+        }
+
+        KafkaSubscription subscription = new KafkaSubscription(consumer, request.getCallback());
         // TODO pool the threads
-        Thread thread = new Thread();
+        Thread thread = new Thread(subscription);
         thread.setDaemon(true);
         thread.start();
         return subscription;
@@ -184,12 +204,6 @@ public class KafkaMessaging implements Messaging {
         return new KafkaConsumer<>(unmodifiableMap(consumerConfig));
     }
 
-    private void assignAndSeek(KafkaConsumer consumer, String topicName, Position position){
-        KafkaPosition kafkaPosition = asKafkaPosition(position);
-        TopicPartition topicPartition = new TopicPartition(topicName, PARTITION);
-        consumer.assign(singleton(topicPartition));
-        consumer.seek(topicPartition, kafkaPosition.getOffset());
-    }
 
     private void closeQuietly(Closeable closeable) {
         if (closeable != null) {

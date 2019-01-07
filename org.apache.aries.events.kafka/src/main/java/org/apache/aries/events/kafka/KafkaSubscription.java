@@ -28,8 +28,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.Long.MAX_VALUE;
-import static java.time.Duration.ofSeconds;
+import static java.time.Duration.ofHours;
 import static java.util.Objects.requireNonNull;
 import static org.apache.aries.events.kafka.KafkaMessaging.toMessage;
 
@@ -52,7 +51,7 @@ public class KafkaSubscription implements Subscription, Runnable {
     public void run() {
         try {
             for (;running;) {
-                ConsumerRecords<String, byte[]> records = consumer.poll(ofSeconds(MAX_VALUE));
+                ConsumerRecords<String, byte[]> records = consumer.poll(ofHours(1));
                 records.forEach(record -> callback.accept(toReceived(record)));
             }
         } catch (WakeupException e) {

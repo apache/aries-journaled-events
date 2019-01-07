@@ -16,12 +16,23 @@
  */
 package org.apache.aries.events.kafka;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
+import org.apache.aries.events.api.SubscribeRequestBuilder;
+import org.apache.aries.events.api.Subscription;
+import org.apache.aries.events.kafka.setup.KafkaBaseTest;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import static java.nio.charset.Charset.forName;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
-public class KafkaMessagingTest {
+public class KafkaMessagingTest extends KafkaBaseTest {
 
     @Test
     public void testPositionFromString() throws Exception {
@@ -35,6 +46,36 @@ public class KafkaMessagingTest {
     public void testPositionFromStringIllegalArgument() throws Exception {
         Messaging messaging = new KafkaMessaging();
         messaging.positionFromString("0:100:23");
+    }
+
+    @Test(timeout = 10000)
+    public void testSendAndReceive() throws Exception {
+
+        String topic = "test_send_and_receive";
+        createTopic(topic, 1);
+
+        KafkaEndpoint kafkaEndpoint = Mockito.mock(KafkaEndpoint.class);
+        when(kafkaEndpoint.kafkaBootstrapServers())
+                .thenReturn(getKafkaLocal().getKafkaBootstrapServer());
+        KafkaMessaging messaging = new KafkaMessaging();
+        messaging.activate(kafkaEndpoint);
+
+        byte[] payload = "test".getBytes(forName("UTF-8"));
+
+        Message message = new Message(payload, singletonMap("prop1", "value1"));
+        messaging.send(topic, message);
+
+        Semaphore invoked = new Semaphore(0);
+
+        SubscribeRequestBuilder requestBuilder = SubscribeRequestBuilder
+                .to(topic, (received) -> invoked.release())
+                .startAt(new KafkaPosition(0, 0));
+
+        try (Subscription subscription = messaging.subscribe(requestBuilder)) {
+            invoked.tryAcquire(10, TimeUnit.SECONDS);
+        }
+
+        messaging.deactivate();
     }
 
 }
