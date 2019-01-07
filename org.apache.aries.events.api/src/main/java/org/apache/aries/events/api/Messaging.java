@@ -17,8 +17,6 @@
  */
 package org.apache.aries.events.api;
 
-import java.util.Map;
-
 /**
  * Journaled messaging API
  */
