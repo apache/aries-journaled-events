@@ -16,6 +16,8 @@
  */
 package org.apache.aries.events.kafka;
 
+import javax.annotation.Nonnull;
+
 import org.apache.aries.events.api.Position;
 
 public final class KafkaPosition implements Position {
@@ -48,7 +50,7 @@ public final class KafkaPosition implements Position {
     }
 
     @Override
-    public int compareTo(Position p) {
+    public int compareTo(@Nonnull Position p) {
         return Long.compare(offset, ((KafkaPosition)p).offset);
     }
 }

@@ -28,6 +28,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
 import static java.time.Duration.ofHours;
 import static java.util.Objects.requireNonNull;
 import static org.apache.aries.events.kafka.KafkaMessaging.toMessage;
@@ -62,7 +63,7 @@ public class KafkaSubscription implements Subscription, Runnable {
                 LOG.debug("WakeupException while stopping {}", e.getMessage(), e);
             }
         } catch(Throwable t) {
-            LOG.error(String.format("Catch Throwable %s closing subscription", t.getMessage()), t);
+            LOG.error(format("Catch Throwable %s closing subscription", t.getMessage()), t);
             throw t;
         } finally {
             // Close the network connections and sockets
