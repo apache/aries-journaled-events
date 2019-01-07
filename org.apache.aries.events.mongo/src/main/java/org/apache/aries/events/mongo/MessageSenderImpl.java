@@ -70,7 +70,7 @@ final class MessageSenderImpl implements MessageSender {
     private final long maxAge;
 
     private MessageSenderImpl(MongoCollection<Document> collection, long maxAge) {
-        LOGGER.info("Creating new publisher: " + collection.getNamespace().getCollectionName());
+        LOGGER.debug("Creating new publisher: " + collection.getNamespace().getCollectionName());
         ensureIndexes(collection);
         this.collection = collection;
         this.maxAge = maxAge;

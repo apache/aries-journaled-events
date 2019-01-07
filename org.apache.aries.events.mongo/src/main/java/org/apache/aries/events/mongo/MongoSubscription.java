@@ -22,12 +22,8 @@ import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
 import org.apache.aries.events.api.Subscription;
-import org.bson.Document;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 import static java.lang.Thread.currentThread;
@@ -114,7 +110,7 @@ final class MongoSubscription implements Subscription {
         while (!interrupted()) {
             try {
                 Message message = receiver.receive(index);
-                LOGGER.info("Received: " + message);
+                LOGGER.debug("Received: " + message);
                 Received received = new Received(position(index), message);
                 consumer.accept(received);
                 index += 1L;
@@ -124,7 +120,7 @@ final class MongoSubscription implements Subscription {
                 LOGGER.error("Error handling message", e);
             }
         }
-        LOGGER.info("Quitting " + this);
+        LOGGER.debug("Quitting " + this);
         receiver.close();
     }
 

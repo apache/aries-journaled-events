@@ -17,10 +17,13 @@
  */
 package org.apache.aries.events.api;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Objects.requireNonNull;
 
 /**
  * TODO If we allow wild card consumption then a message also needs a topic
@@ -31,6 +34,8 @@ public final class Message {
     private final Map<String, String> properties;
 
     public Message(byte[] payload, Map<String, String> properties) {
+        requireNonNull(payload);
+        requireNonNull(properties);
         this.payload = payload.clone();
         this.properties = unmodifiableMap(new HashMap<>(properties));
     }
@@ -41,6 +46,27 @@ public final class Message {
     
     public Map<String, String> getProperties() {
         return properties;
+    }
+
+    @Override
+    public String toString() {
+        return "Message" + properties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return Arrays.equals(payload, message.payload) &&
+                properties.equals(message.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(properties);
+        result = 31 * result + Arrays.hashCode(payload);
+        return result;
     }
 
 }

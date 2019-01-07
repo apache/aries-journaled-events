@@ -100,7 +100,7 @@ final class MessageReceiverImpl implements MessageReceiver {
     private volatile boolean interrupted = false;
 
     private MessageReceiverImpl(MongoCollection<Document> col, Optional<MongoClient> mongoClient) {
-        LOGGER.info("Creating new receiver: " + col.getNamespace().getCollectionName());
+        LOGGER.debug("Creating new receiver: " + col.getNamespace().getCollectionName());
         this.mongoClient = mongoClient;
         this.col = col;
     }
