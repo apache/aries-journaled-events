@@ -16,8 +16,12 @@
  */
 package org.apache.aries.events.kafka;
 
+import java.util.NavigableMap;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
+import org.apache.aries.events.api.Position;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -46,6 +50,16 @@ public class KafkaPositionTest {
         assertEquals(0, comparePositions(position(RAND.nextInt(), 5), position(RAND.nextInt(), 5)));
         assertEquals(1, comparePositions(position(RAND.nextInt(), 10), position(RAND.nextInt(), 5)));
         assertEquals(-1, comparePositions(position(RAND.nextInt(), 2), position(RAND.nextInt(), 5)));
+    }
+
+    @Test
+    public void testOrder() {
+        NavigableMap<Position, String> positions = new TreeMap<>();
+        positions.put(new KafkaPosition(0, 0), "earliest");
+        positions.put(new KafkaPosition(0, 1), "mid");
+        positions.put(new KafkaPosition(0, 2), "latest");
+        assertEquals("earliest", positions.firstEntry().getValue());
+        assertEquals("latest", positions.lastEntry().getValue());
     }
 
     private int comparePositions(KafkaPosition position1, KafkaPosition position2) {
