@@ -28,6 +28,7 @@ import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.SubscribeRequestBuilder;
 import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
+import org.apache.aries.events.api.TopicPosition;
 import org.bson.Document;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -64,7 +65,7 @@ public class MongoMessaging implements Messaging {
     }
 
     @Override
-    public Position positionFromString(String position) {
+    public TopicPosition positionFromString(String position) {
         long index = Long.parseLong(position);
         return position(index);
     }

@@ -1,6 +1,6 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
+ * Licensed to the Apache Software Foundation (ASF) under one
  * distributed with this work for additional information
  * regarding copyright ownership. The SF licenses this file
  * to you under the Apache License, Version 2.0 (the
@@ -49,7 +49,7 @@ public final class SubscribeRequestBuilder {
      * @param position in the topic to start consuming from
      * @return the updated subscribe request
      */
-    public SubscribeRequestBuilder startAt(Position position) {
+    public SubscribeRequestBuilder startAt(TopicPosition position) {
         this.subscribeRequest.position = position;
         return this;
     }
@@ -66,6 +66,11 @@ public final class SubscribeRequestBuilder {
         this.subscribeRequest.seek = requireNonNull(seek, "Seek must not be null");
         return this;
     }
+    
+    public SubscribeRequestBuilder groupId(String groupId) {
+        this.subscribeRequest.groupId = groupId;
+        return this;
+    }
 
     
     public SubscribeRequest build() {
@@ -75,9 +80,10 @@ public final class SubscribeRequestBuilder {
     public static class SubscribeRequest {
         private final String topic;
         private final Consumer<Received> callback;
-        private Position position;
+        private TopicPosition position;
         private Seek seek = Seek.latest;
-        
+        private String groupId;
+
         private SubscribeRequest(String topic, Consumer<Received> callback) {
             this.topic = topic;
             this.callback = callback;
@@ -87,7 +93,7 @@ public final class SubscribeRequestBuilder {
             return topic;
         }
         
-        public Position getPosition() {
+        public TopicPosition getPosition() {
             return position;
         }
         
@@ -98,5 +104,10 @@ public final class SubscribeRequestBuilder {
         public Consumer<Received> getCallback() {
             return callback;
         }
+        
+        public String getGroupId() {
+            return groupId;
+        }
     }
 }
+

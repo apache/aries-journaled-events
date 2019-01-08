@@ -46,6 +46,6 @@ public interface Messaging {
      * @param position
      * @return
      */
-    Position positionFromString(String position);
+    TopicPosition positionFromString(String position);
 
 }

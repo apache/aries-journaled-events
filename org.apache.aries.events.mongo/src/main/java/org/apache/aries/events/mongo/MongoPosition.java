@@ -19,20 +19,26 @@
 package org.apache.aries.events.mongo;
 
 import org.apache.aries.events.api.Position;
+import org.apache.aries.events.api.TopicPosition;
 
-class MongoPosition implements Position {
+class MongoPosition implements Position, TopicPosition {
 
-    static Position position(long index) {
+    static MongoPosition position(long index) {
         return new MongoPosition(index);
     }
 
-    static long index(Position position) {
+    static long index(TopicPosition position) {
         return ((MongoPosition) position).index;
+    }
+    
+    @Override
+    public String topicPositionToString() {
+        return String.valueOf(index);
     }
 
     @Override
-    public String positionToString() {
-        return String.valueOf(index);
+    public String getKey() {
+        return Position.defaultKey;
     }
 
     @Override

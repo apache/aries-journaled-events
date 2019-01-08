@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
-import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
 import org.apache.aries.events.api.SubscribeRequestBuilder;
@@ -63,9 +62,9 @@ public class MessagingTest {
     
     @Test
     public void testPositionFromString() {
-        Position pos = messaging.positionFromString("1");
-        assertThat(pos.compareTo(new MemoryPosition(1)), equalTo(0));
-        assertThat(pos.positionToString(), equalTo("1"));
+        MemoryTopicPosition pos = (MemoryTopicPosition) messaging.positionFromString("1");
+        assertThat(pos.getOffset(), equalTo(1l));
+        assertThat(pos.topicPositionToString(), equalTo("1"));
     }
     
     @Test
@@ -134,7 +133,7 @@ public class MessagingTest {
     public void testFrom1() {
         send("test", "testcontent");
         send("test", "testcontent2");
-        subscribe(to("test", callback).startAt(new MemoryPosition(1l)).seek(Seek.earliest));
+        subscribe(to("test", callback).startAt(new MemoryTopicPosition(1l)).seek(Seek.earliest));
         assertMessages(1);
         assertThat(messageContents(), contains("testcontent2"));
     }
