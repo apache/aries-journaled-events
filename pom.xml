@@ -44,12 +44,13 @@
         <module>org.apache.aries.events.api</module>
         <module>org.apache.aries.events.memory</module>
         <module>org.apache.aries.events.mongo</module>
+        <module>org.apache.aries.events.kafka</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bnd.version>4.1.0</bnd.version>
-        <slf4j.version>1.7.14</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>1.2.6</log4j.version>
         <exam.version>4.12.0</exam.version>
     </properties>
