@@ -1,6 +1,7 @@
 # Apache Aries Journaled events
 
 [![Build Status](https://builds.apache.org/buildStatus/icon?job=Aries-journaled-events)](https://builds.apache.org/job/Aries-journaled-events/)
+[![Travis Build Status](https://travis-ci.org/apache/aries-journaled-events.svg?branch=master)](https://travis-ci.org/apache/aries-journaled-events)
 
 This subproject provides an API (possibly as spec) and backends for journaled streams of events. These extend the publish/subscribe model with means to start consume from an point in the stored event stream history.
 
