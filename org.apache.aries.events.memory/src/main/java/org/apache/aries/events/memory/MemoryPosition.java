@@ -32,12 +32,12 @@ class MemoryPosition implements Position {
     }
 
     @Override
-    public String positionToString() {
-        return Long.toString(offset);
+    public int compareTo(Position p) {
+        return Long.compare(offset, ((MemoryPosition)p).offset);
     }
 
     @Override
-    public int compareTo(Position p) {
-        return Long.compare(offset, ((MemoryPosition)p).offset);
+    public String getKey() {
+        return "default";
     }
 }

@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import org.apache.aries.events.api.Message;
-import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.Received;
 import org.apache.aries.events.api.Seek;
 import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
@@ -42,19 +41,18 @@ class Topic {
         this.journal = new Journal<>(keepAtLeast);
     }
 
-    public synchronized Position send(Message message) {
-        long offset = this.journal.append(message);
+    public synchronized void send(Message message) {
+        this.journal.append(message);
         notifyAll();
-        return new MemoryPosition(offset);
     }
 
     public Subscription subscribe(SubscribeRequest request) {
-        long startOffset = getStartOffset((MemoryPosition) request.getPosition(), request.getSeek());
+        long startOffset = getStartOffset((MemoryTopicPosition) request.getPosition(), request.getSeek());
         log.debug("Consuming from " + startOffset);
         return new TopicSubscription(startOffset, request.getCallback());
     }
 
-    private long getStartOffset(MemoryPosition position, Seek seek) {
+    private long getStartOffset(MemoryTopicPosition position, Seek seek) {
         if (position != null) {
             return position.getOffset();
         } else {
@@ -105,8 +103,9 @@ class Topic {
         private void handleMessage(Entry<Long, Message> entry) {
             long offset = entry.getKey();
             try {
+                Message message = entry.getValue();
                 MemoryPosition position = new MemoryPosition(this.currentOffset);
-                Received received = new Received(position, entry.getValue());
+                Received received = new Received(position, message);
                 callback.accept(received);
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);

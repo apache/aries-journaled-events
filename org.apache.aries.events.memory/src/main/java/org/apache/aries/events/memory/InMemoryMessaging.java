@@ -22,10 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.aries.events.api.Message;
 import org.apache.aries.events.api.Messaging;
-import org.apache.aries.events.api.Position;
 import org.apache.aries.events.api.SubscribeRequestBuilder;
 import org.apache.aries.events.api.SubscribeRequestBuilder.SubscribeRequest;
 import org.apache.aries.events.api.Subscription;
+import org.apache.aries.events.api.TopicPosition;
 import org.apache.aries.events.api.Type;
 import org.osgi.service.component.annotations.Component;
 
@@ -58,9 +58,9 @@ public class InMemoryMessaging implements Messaging {
     }
 
     @Override
-    public Position positionFromString(String position) {
+    public TopicPosition positionFromString(String position) {
         long offset = Long.parseLong(position);
-        return new MemoryPosition(offset);
+        return new MemoryTopicPosition(offset);
     }
 
     private Topic getOrCreate(String topicName) {
