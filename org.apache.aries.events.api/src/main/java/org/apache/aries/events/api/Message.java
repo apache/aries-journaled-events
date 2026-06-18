@@ -27,8 +27,12 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * TODO If we allow wild card consumption then a message also needs a topic
+ * 
+ * The property key "key" is a special property. For systems that support sharding
+ * the key can be used to indirectly select the partition to be used.
  */
 public final class Message {
+    public static final String KEY = "key";
 
     private final byte[] payload;
     private final Map<String, String> properties;

@@ -18,18 +18,20 @@
 package org.apache.aries.events.api;
 
 /**
- * Position in a the topic.
- * E.g. For a kafka implementation this would be a list of (partition, offset) as we do not support partitions 
- * this could simply be like an offset.
+ * Position of a message in a topic.
  *
- * The {@code Position} positions are ordered. The relative order between
+ * The positions are ordered. The relative order between
  * two positions can be computed by invoking {@code Comparable#compareTo}.
  * Comparing this position with a specified position will return a negative
  * integer, zero, or a positive integer as this position happened before,
  * happened concurrently, or happened after the specified position.
+ * 
+ * In systems that use sharding (like Apache Kafka) positions are only comparable 
+ * if they have the same key. 
  */
 public interface Position extends Comparable<Position> {
+    public static final String defaultKey = "default";
 
-    String positionToString();
+    String getKey();
 
 }
